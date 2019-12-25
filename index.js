@@ -1,25 +1,21 @@
 const Koa = require('koa')
-const compose = require("koa-compose");
+const bodyParser = require("koa-bodyparser"); // 解析post的参数
+const Router = require('koa-router')
 const app = new Koa()
+const router = new Router()
 
+router.get('/get', (ctx, next) => {
+  ctx.body = ctx.request.query
+})
 
-async function func1(ctx, next) {
-let stime = new Date().getTime()
-  await next()
-  let etime = new Date().getTime()
-  ctx.response.type = 'text/html'
-  ctx.response.body = '<h1>相应的时间</h1>'
-  console.log(`请求的地址： ${ctx.path}, 相应时间：${etime - stime}ms`)
-}
+router.post('/post', (ctx, next) => {
+  ctx.body = ctx.request.body
+})
 
-async function func2(ctx, next) {
-  console.log('开始中间层')
-  await next()
-  console.log('结束中间层')
-}
-const all = compose([func1, func2])
-
-app.use(all)
+app
+  .use(bodyParser())
+  .use(router.routes())
+  .use(router.allowedMethods())
 
 app.listen(3003)
 
